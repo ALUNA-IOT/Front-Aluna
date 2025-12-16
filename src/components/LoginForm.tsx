@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/UI/Button';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { AuthService } from '@/services/AuthService';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -20,15 +21,18 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      // Simular llamada a API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Login attempt:', { email, password });
+      // Consumir el servicio de autenticación
+      const result = await AuthService.login({ email, password });
       
-      // Aquí iría tu lógica de autenticación
-      // Si es exitosa, redirigir a Users dashboard
-      router.push('/Users');
+      if (result.ok) {
+        // Redirigir al dashboard de usuarios
+        router.push('/Users');
+      } else {
+        setError(result.error || 'Error al iniciar sesión. Intenta nuevamente.');
+      }
     } catch (err) {
-      setError('Error al iniciar sesión. Intenta nuevamente.');
+      console.error('Error durante el login:', err);
+      setError('Error al conectar con el servidor. Intenta nuevamente.');
     } finally {
       setIsLoading(false);
     }

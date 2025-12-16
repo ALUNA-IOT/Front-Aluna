@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Folder, User, DollarSign, LogOut, Menu, X } from 'lucide-react';
+import { AuthService } from '@/services/AuthService';
 
 interface NavItem {
   label: string;
@@ -48,9 +49,17 @@ export default function UserSidebar() {
     return normalizedPathname === normalizedHref || normalizedPathname.startsWith(normalizedHref + '/');
   };
 
-  const handleLogout = () => {
-    console.log('Logout clicked');
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      // Consumir el servicio de logout
+      await AuthService.logout();
+      // Siempre redirigir al login, sin importar si hay error o no
+      router.push('/login');
+    } catch (error) {
+      console.error('Error durante logout:', error);
+      // Aún así redirigir al login
+      router.push('/login');
+    }
   };
 
   const tooltipVariants = {

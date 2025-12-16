@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, Building, Edit, Shield, Bell } from 'lucide-react';
+import { AuthService } from '@/services/AuthService';
 
 interface UserProfile {
   name: string;
@@ -21,12 +22,13 @@ interface NotificationSettings {
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile>({
-    name: 'Carlos Mendoza',
+    name: 'Usuario',
     role: 'Administrador IoT',
-    email: 'carlos.mendoza@empresa.com',
+    email: 'usuario@email.com',
     phone: '+34 612 345 678',
-    company: 'TechCorp Solutions',
+    company: 'Empresa',
   });
 
   const [notifications, setNotifications] = useState<NotificationSettings>({
@@ -36,6 +38,40 @@ export default function ProfilePage() {
   });
 
   const [formData, setFormData] = useState(profile);
+
+  // Obtener datos de la sesión al cargar
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const session = await AuthService.getSession();
+        if (session?.user) {
+          // Actualizar el perfil con los datos de la sesión
+          setProfile((prev) => ({
+            ...prev,
+            name: session.user.name || prev.name,
+            email: session.user.email || prev.email,
+            role: session.user.role || prev.role,
+            phone: session.user.phone || prev.phone,
+            company: session.user.company || prev.company,
+          }));
+          setFormData((prev) => ({
+            ...prev,
+            name: session.user.name || prev.name,
+            email: session.user.email || prev.email,
+            role: session.user.role || prev.role,
+            phone: session.user.phone || prev.phone,
+            company: session.user.company || prev.company,
+          }));
+        }
+      } catch (error) {
+        console.error('Error al obtener la sesión:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSession();
+  }, []);
 
   const handleEditClick = () => {
     setIsEditing(!isEditing);
@@ -65,7 +101,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 py-8">
+    <div className="py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Título */}
         <div className="text-center mb-12">

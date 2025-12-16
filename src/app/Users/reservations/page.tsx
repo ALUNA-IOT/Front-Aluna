@@ -73,7 +73,7 @@ export default function ReservationsPage() {
   const monthName = currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-slate-950 py-8">
+    <div className="py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Título */}
         <div className="text-center mb-12">

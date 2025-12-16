@@ -72,7 +72,7 @@ const amenityIcons: Record<string, React.ReactNode> = {
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-slate-950 py-8">
+    <div className="py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Título */}
         <div className="mb-12">
