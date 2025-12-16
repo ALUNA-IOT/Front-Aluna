@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/UI/Button";
 import { Menu, X, User } from "lucide-react";
@@ -18,12 +17,6 @@ const navItems = [
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
-
-  // No mostrar el Header si estamos en la ruta /Users
-  if (pathname.startsWith('/Users')) {
-    return null;
-  }
 
   useEffect(() => {
     const handleScroll = () => {
