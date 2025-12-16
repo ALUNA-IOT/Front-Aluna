@@ -1,32 +1,20 @@
-"use client";
-
-import { useEffect, useState } from "react";
+// src/app/admin/page.tsx
 import FloorMap from "@/components/admin/FloorMap";
-import ZoneDetailsPanel from "@/components/admin/ZoneDetailsPanel";
-import { getFloorState } from "@/services/floor/floor.service";
-import type { FloorState, ZoneState } from "@/types/floor";
 
 export default function AdminPage() {
-  const [floor, setFloor] = useState<FloorState | null>(null);
-  const [selected, setSelected] = useState<ZoneState | null>(null);
-
-  useEffect(() => {
-    getFloorState("floor-5").then(setFloor);
-  }, []);
-
-  if (!floor) {
-    return <div className="p-10 text-white/40">Loading map…</div>;
-  }
-
   return (
-    <div className="grid grid-cols-[1fr_360px] gap-6 p-6">
-      <FloorMap
-        data={floor}
-        selectedId={selected?.id ?? null}
-        onSelect={setSelected}
-      />
+    <main className="min-h-screen bg-gradient-to-b from-[#050B14] via-[#061425] to-[#05070C] p-6">
+      <header className="mb-5 flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">ALUNA Admin</h1>
+          <p className="mt-1 text-sm text-white/55">
+            Floor 5 · Interactive IoT Map (SVG inline) · Ready for
+            endpoints/MQTT
+          </p>
+        </div>
+      </header>
 
-      <ZoneDetailsPanel zone={selected} />
-    </div>
+      <FloorMap />
+    </main>
   );
 }
