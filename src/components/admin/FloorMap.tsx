@@ -2,85 +2,69 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ZoneId, ZoneState } from "@/types/floor";
+
 import Floor5Svg from "./Floor5Svg";
-import ZoneDetailsPanel from "./ZoneDetailsPanel";
-import { getFloor5State, getZoneState } from "@/services/floor/floor.service";
+import ZoneControlModal from "./ZoneControlModal";
+
+import { getFloor5State } from "@/services/floor/floor.service";
+import { useZoneLive } from "@/hooks/useZoneLive";
 
 export default function FloorMap() {
   const [zones, setZones] = useState<ZoneState[]>([]);
   const [selectedId, setSelectedId] = useState<ZoneId | null>(null);
-  const [fetchedZone, setFetchedZone] = useState<ZoneState | null>(null);
-  const [loadingZone, setLoadingZone] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  // 1️⃣ Cargar zonas (mock base)
+  // ================================
+  //  Zonas base (layout del mapa)
+  // ================================
   useEffect(() => {
     let mounted = true;
 
-    (async () => {
+    const loadFloor = async () => {
       const floor = await getFloor5State();
-
       if (!mounted || !floor?.zones?.length) return;
 
       setZones(floor.zones);
-      setSelectedId(floor.zones[0].id);
-    })();
+    };
 
+    loadFloor();
     return () => {
       mounted = false;
     };
   }, []);
 
-  const zoneById = useMemo(() => new Map(zones.map((z) => [z.id, z])), [zones]);
+  // ================================
+  //  Estado LIVE / MOCK por zona
+  // ================================
+  const liveZone = useZoneLive(selectedId);
 
-  // 2️⃣ Cargar datos dinámicos de la zona seleccionada
-  useEffect(() => {
-    if (!selectedId) return;
-
-    let mounted = true;
-
-    (async () => {
-      setLoadingZone(true);
-
-      const z = await getZoneState(selectedId);
-
-      if (mounted) {
-        setFetchedZone(z);
-        setLoadingZone(false);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, [selectedId]);
-
-  // 3️⃣ Zona final a mostrar
-  const selectedZone = useMemo<ZoneState | null>(() => {
-    if (!selectedId) return null;
-    return fetchedZone ?? zoneById.get(selectedId) ?? null;
-  }, [selectedId, fetchedZone, zoneById]);
+  const zonesWithLiveData = useMemo(() => {
+    return zones.map((z) => (z.id === selectedId && liveZone ? liveZone : z));
+  }, [zones, selectedId, liveZone]);
 
   return (
-    <section className="grid h-[calc(100vh-110px)] grid-cols-12 gap-4">
-      {/* MAPA */}
-      <div className="col-span-8 rounded-3xl border border-white/10 bg-white/5 p-3 backdrop-blur">
+    <>
+      {/* ============== MAPA ============== */}
+      <section className="h-[calc(100vh-110px)] rounded-3xl border border-white/10 bg-white/5 p-3 backdrop-blur">
         <div className="h-full w-full rounded-2xl border border-white/10 bg-black/20">
           <Floor5Svg
-            zones={zones}
+            zones={zonesWithLiveData}
             selectedId={selectedId}
             onSelect={(id) => {
-              //  blindaje: solo aceptar ids válidos
-              if (!zoneById.has(id)) return;
               setSelectedId(id);
+              setModalOpen(true); //  click → modal
             }}
           />
         </div>
-      </div>
+      </section>
 
-      {/* PANEL */}
-      <div className="col-span-4">
-        <ZoneDetailsPanel zone={selectedZone} loading={loadingZone} />
-      </div>
-    </section>
+      {/* ============== MODAL ============== */}
+      <ZoneControlModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        zoneId={selectedId}
+        zone={liveZone}
+      />
+    </>
   );
 }

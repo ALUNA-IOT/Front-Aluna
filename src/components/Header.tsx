@@ -1,29 +1,23 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/UI/Button";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, Home, Gift, Shield, Book, Mail } from "lucide-react";
 
 const navItems = [
-  { label: "Inicio", href: "/" },
-  { label: "Beneficios", href: "/benefits" },
-  { label: "Seguridad", href: "/security" },
-  { label: "Recursos", href: "/resources" },
-  { label: "Contacto", href: "/contact" },
+  { label: "Inicio", href: "/", icon: Home },
+  { label: "Beneficios", href: "/benefits", icon: Gift },
+  { label: "Seguridad", href: "/security", icon: Shield },
+  { label: "Recursos", href: "/resources", icon: Book },
+  { label: "Contacto", href: "/contact", icon: Mail },
 ];
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
-
-  // No mostrar el Header si estamos en la ruta /Users
-  if (pathname.startsWith('/Users')) {
-    return null;
-  }
+  const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,13 +48,12 @@ const Header = () => {
             transition={{ type: "spring", stiffness: 400 }}
             onClick={() => {
               // Limpiar sessionStorage para mostrar el splash screen
-              sessionStorage.removeItem('hasShownSplashThisSession');
+              sessionStorage.removeItem("hasShownSplashThisSession");
             }}
           >
-          
-            <img 
+            <img
               src="/img/logo.png"
-              alt="ALUNA" 
+              alt="ALUNA"
               className="h-10 w-auto drop-shadow-[0_0_10px_hsl(195_100%_50%/0.5)]"
             />
           </motion.a>
@@ -78,8 +71,8 @@ const Header = () => {
                 whileHover={{ scale: 1.08, color: "#7dd1fe" }}
               >
                 {item.label}
-                <motion.span 
-                  className="absolute bottom-0 left-0 h-px bg-primary" 
+                <motion.span
+                  className="absolute bottom-0 left-0 h-px bg-primary"
                   initial={{ width: 0 }}
                   whileHover={{ width: "100%" }}
                   transition={{ duration: 0.3 }}
@@ -120,32 +113,138 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Mobile Menu */}
-        <motion.div
-          className={`md:hidden overflow-hidden ${isMobileMenuOpen ? "block" : "hidden"}`}
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ 
-            height: isMobileMenuOpen ? "auto" : 0,
-            opacity: isMobileMenuOpen ? 1 : 0
-          }}
-          transition={{ duration: 0.3 }}
+        {/* Mobile Menu - Right Sidebar */}
+        {isMobileMenuOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/40 md:hidden z-40"
+            onClick={() => setIsMobileMenuOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          />
+        )}
+
+        <motion.nav
+          className="fixed top-0 right-0 h-full w-24 md:hidden z-50 pt-24 px-3 border-l border-cyan-500/30 bg-slate-950/40 backdrop-blur-2xl flex flex-col items-center"
+          initial={{ x: "100%" }}
+          animate={{ x: isMobileMenuOpen ? 0 : "100%" }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          <nav className="py-6 flex flex-col gap-4 border-t border-border">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="font-inter text-lg tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {item.label}
-              </a>
-            ))}
-            <Button variant="nav" size="sm" className="mt-4 w-fit">
+          <div className="flex-1 flex flex-col gap-4 mb-6">
+            {navItems.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <motion.div
+                  key={item.label}
+                  className="relative group"
+                  onMouseEnter={() => setHoveredTooltip(item.label)}
+                  onMouseLeave={() => setHoveredTooltip(null)}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <motion.a
+                    href={item.href}
+                    className="p-3 rounded-lg text-white bg-linear-to-r from-slate-800/50 to-slate-700/50 border border-cyan-500/20 hover:border-cyan-400/60 hover:from-slate-800/70 hover:to-slate-700/70 hover:text-cyan-400 transition-all duration-300 backdrop-blur-sm flex items-center justify-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    whileHover={{
+                      scale: 1.1,
+                      boxShadow: "0 0 15px rgba(34, 211, 238, 0.2)",
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <IconComponent size={20} />
+                  </motion.a>
+
+                  {/* Tooltip */}
+                  <motion.div
+                    className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-cyan-600/90 text-white text-xs font-inter whitespace-nowrap pointer-events-none"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={
+                      hoveredTooltip === item.label
+                        ? { opacity: 1, x: 0 }
+                        : { opacity: 0, x: 10 }
+                    }
+                    transition={{ duration: 0.2 }}
+                  >
+                    {item.label}
+                  </motion.div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Divider */}
+          <div className="w-8 h-px bg-linear-to-r from-transparent via-cyan-500/30 to-transparent mb-4" />
+
+          {/* Login Button */}
+          <motion.div
+            className="relative group"
+            onMouseEnter={() => setHoveredTooltip("login")}
+            onMouseLeave={() => setHoveredTooltip(null)}
+          >
+            <motion.a
+              href="/login"
+              className="p-3 rounded-lg text-white bg-linear-to-r from-cyan-600/80 to-cyan-500/60 border border-cyan-400/50 hover:border-cyan-300 hover:from-cyan-600 hover:to-cyan-500 transition-all duration-300 backdrop-blur-sm mb-3 flex items-center justify-center"
+              onClick={() => setIsMobileMenuOpen(false)}
+              whileHover={{
+                scale: 1.1,
+                boxShadow: "0 0 20px rgba(34, 211, 238, 0.4)",
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <User size={20} />
+            </motion.a>
+
+            {/* Tooltip */}
+            <motion.div
+              className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-cyan-600/90 text-white text-xs font-inter whitespace-nowrap pointer-events-none"
+              initial={{ opacity: 0, x: 10 }}
+              animate={
+                hoveredTooltip === "login"
+                  ? { opacity: 1, x: 0 }
+                  : { opacity: 0, x: 10 }
+              }
+              transition={{ duration: 0.2 }}
+            >
               Iniciar Sesión
-            </Button>
-          </nav>
-        </motion.div>
+            </motion.div>
+          </motion.div>
+
+          {/* Close Button */}
+          <motion.div
+            className="relative group"
+            onMouseEnter={() => setHoveredTooltip("close")}
+            onMouseLeave={() => setHoveredTooltip(null)}
+          >
+            <motion.button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-3 rounded-lg text-white bg-linear-to-r from-slate-800/50 to-slate-700/50 border border-cyan-500/20 hover:border-cyan-400/60 hover:from-slate-800/70 hover:to-slate-700/70 hover:text-cyan-400 transition-all duration-300 backdrop-blur-sm flex items-center justify-center"
+              whileHover={{
+                scale: 1.1,
+                boxShadow: "0 0 15px rgba(34, 211, 238, 0.2)",
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={20} />
+            </motion.button>
+
+            {/* Tooltip */}
+            <motion.div
+              className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-cyan-600/90 text-white text-xs font-inter whitespace-nowrap pointer-events-none"
+              initial={{ opacity: 0, x: 10 }}
+              animate={
+                hoveredTooltip === "close"
+                  ? { opacity: 1, x: 0 }
+                  : { opacity: 0, x: 10 }
+              }
+              transition={{ duration: 0.2 }}
+            >
+              Cerrar
+            </motion.div>
+          </motion.div>
+        </motion.nav>
       </div>
     </motion.header>
   );

@@ -1,6 +1,5 @@
-'use client';
+"use client";
 
-import Header from "@/components/Header";
 import Footer from "@/components/landing/Footer";
 import { motion } from "framer-motion";
 import { BookOpen, Zap, GraduationCap, Lightbulb } from "lucide-react";
@@ -38,7 +37,6 @@ export default function RecursosPage() {
 
   return (
     <>
-      <Header />
       <main className="pt-20 min-h-screen">
         <section className="relative py-32 overflow-hidden">
           {/* Background */}
@@ -67,7 +65,8 @@ export default function RecursosPage() {
                 <span className="gradient-text">Empoderan</span>
               </h2>
               <p className="font-inter text-lg text-muted-foreground max-w-2xl mx-auto font-light">
-                Accede a toda la documentación, APIs y tutoriales necesarios para implementar y maximizar Aluna
+                Accede a toda la documentación, APIs y tutoriales necesarios
+                para implementar y maximizar Aluna
               </p>
             </motion.div>
 
@@ -94,28 +93,28 @@ export default function RecursosPage() {
                   {duplicatedResources.map((resource, index) => {
                     const Icon = resource.icon;
                     const bgColors = [
-                      'bg-foreground/5 backdrop-blur-xl border border-foreground/10',
-                      'bg-foreground/5 backdrop-blur-xl border border-foreground/10',
-                      'bg-foreground/5 backdrop-blur-xl border border-foreground/10',
-                      'bg-foreground/5 backdrop-blur-xl border border-foreground/10',
+                      "bg-foreground/5 backdrop-blur-xl border border-foreground/10",
+                      "bg-foreground/5 backdrop-blur-xl border border-foreground/10",
+                      "bg-foreground/5 backdrop-blur-xl border border-foreground/10",
+                      "bg-foreground/5 backdrop-blur-xl border border-foreground/10",
                     ];
                     const borderColors = [
-                      'from-foreground/20 to-foreground/10',
-                      'from-foreground/20 to-foreground/10',
-                      'from-foreground/20 to-foreground/10',
-                      'from-foreground/20 to-foreground/10',
+                      "from-foreground/20 to-foreground/10",
+                      "from-foreground/20 to-foreground/10",
+                      "from-foreground/20 to-foreground/10",
+                      "from-foreground/20 to-foreground/10",
                     ];
                     const textColors = [
-                      'text-foreground',
-                      'text-foreground',
-                      'text-foreground',
-                      'text-foreground',
+                      "text-foreground",
+                      "text-foreground",
+                      "text-foreground",
+                      "text-foreground",
                     ];
                     const badgeBgColors = [
-                      'bg-foreground/10 backdrop-blur-md border-foreground/20 text-foreground',
-                      'bg-foreground/10 backdrop-blur-md border-foreground/20 text-foreground',
-                      'bg-foreground/10 backdrop-blur-md border-foreground/20 text-foreground',
-                      'bg-foreground/10 backdrop-blur-md border-foreground/20 text-foreground',
+                      "bg-foreground/10 backdrop-blur-md border-foreground/20 text-foreground",
+                      "bg-foreground/10 backdrop-blur-md border-foreground/20 text-foreground",
+                      "bg-foreground/10 backdrop-blur-md border-foreground/20 text-foreground",
+                      "bg-foreground/10 backdrop-blur-md border-foreground/20 text-foreground",
                     ];
 
                     return (
@@ -123,7 +122,8 @@ export default function RecursosPage() {
                         key={`${resource.title}-${index}`}
                         className="group cursor-pointer flex flex-col items-center shrink-0 w-1/2 px-4 h-96"
                         style={{
-                          filter: 'drop-shadow(0 0 20px rgba(0, 255, 255, 0.5))',
+                          filter:
+                            "drop-shadow(0 0 20px rgba(0, 255, 255, 0.5))",
                         }}
                         onMouseEnter={() => setIsHovering(true)}
                         onMouseLeave={() => setIsHovering(false)}
@@ -150,7 +150,9 @@ export default function RecursosPage() {
                         </motion.div>
 
                         {/* Divider Line */}
-                        <div className={`w-full max-w-sm h-1 bg-linear-to-r ${borderColors[index]}`} />
+                        <div
+                          className={`w-full max-w-sm h-1 bg-linear-to-r ${borderColors[index]}`}
+                        />
 
                         {/* Bottom Card - Content Section */}
                         <motion.div
@@ -159,16 +161,28 @@ export default function RecursosPage() {
                           transition={{ type: "spring", stiffness: 300 }}
                         >
                           {/* Content */}
-                          <p className={`text-sm ${textColors[index]} leading-relaxed mb-6 font-inter`}>
+                          <p
+                            className={`text-sm ${textColors[index]} leading-relaxed mb-6 font-inter`}
+                          >
                             {resource.description}
                           </p>
 
                           {/* Bottom Tags/Info */}
                           <div className="flex gap-3 justify-center items-center">
-                            <span className={`text-xs font-semibold uppercase tracking-wider ${badgeBgColors[index]} px-3 py-1 rounded-full border`}>
-                              {index === 0 ? 'Guías' : index === 1 ? 'API' : index === 2 ? 'Tutorial' : 'Ejemplos'}
+                            <span
+                              className={`text-xs font-semibold uppercase tracking-wider ${badgeBgColors[index]} px-3 py-1 rounded-full border`}
+                            >
+                              {index === 0
+                                ? "Guías"
+                                : index === 1
+                                ? "API"
+                                : index === 2
+                                ? "Tutorial"
+                                : "Ejemplos"}
                             </span>
-                            <span className={`text-xs font-semibold ${badgeBgColors[index]} px-3 py-1 rounded-full border`}>
+                            <span
+                              className={`text-xs font-semibold ${badgeBgColors[index]} px-3 py-1 rounded-full border`}
+                            >
                               ∞
                             </span>
                           </div>
@@ -178,8 +192,18 @@ export default function RecursosPage() {
                             className={`absolute bottom-6 right-6 text-primary opacity-80 group-hover:opacity-100 transition-opacity`}
                             whileHover={{ x: 3 }}
                           >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            <svg
+                              className="w-6 h-6"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2.5}
+                                d="M13 7l5 5m0 0l-5 5m5-5H6"
+                              />
                             </svg>
                           </motion.div>
                         </motion.div>
@@ -196,8 +220,8 @@ export default function RecursosPage() {
                     key={index}
                     className={`w-2 h-2 rounded-full transition-all ${
                       index % 2 === 0
-                        ? 'bg-primary w-8'
-                        : 'bg-muted-foreground/40 hover:bg-muted-foreground/60'
+                        ? "bg-primary w-8"
+                        : "bg-muted-foreground/40 hover:bg-muted-foreground/60"
                     }`}
                     whileHover={{ scale: 1.2 }}
                   />
