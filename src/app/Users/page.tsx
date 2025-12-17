@@ -1,49 +1,59 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import {
-  Lightbulb,
-  Fan,
-  Gauge,
-  Activity,
-  Sparkles,
-  SunMoon,
-} from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { telemetrySocket, TelemetryState } from '@/services/ws/telemetry-socket';
-import { Button } from '@/components/UI/Button';
-
-const deviceId = 'nano-esp32-01';
+import { Home, User, Settings } from 'lucide-react';
 
 export default function UsersDashboard() {
+  const [userName, setUserName] = useState<string>('Usuario');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // Marcar que estamos en el cliente
+    setIsClient(true);
+    
+    // Obtener el nombre del usuario del localStorage
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        const name = userData.fullName || userData.name || 'Usuario';
+        setUserName(name);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        setUserName('Usuario');
+      }
+    } else {
+      setUserName('Usuario');
+    }
+  }, []);
+
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
 
-  const [telemetry, setTelemetry] = useState<TelemetryState | null>(null);
-  const [lastCommand, setLastCommand] = useState<string>('—');
-
-  useEffect(() => {
-    const onLatest = (arr: TelemetryState[]) => {
-      const found = arr.find((t) => t.deviceId === deviceId);
-      if (found) setTelemetry(found);
-    };
-    const onUpdate = (t: TelemetryState) => {
-      if (t.deviceId === deviceId) setTelemetry(t);
-    };
-    telemetrySocket.onLatest(onLatest);
-    telemetrySocket.onUpdate(onUpdate);
-    return () => {
-      telemetrySocket.off('telemetry:latest', onLatest);
-      telemetrySocket.off('telemetry:update', onUpdate);
-    };
-  }, []);
-
-  const send = (action: () => void, label: string) => {
-    action();
-    setLastCommand(`${label} @ ${new Date().toLocaleTimeString()}`);
-  };
+  const features = [
+    {
+      icon: <Home className="w-8 h-8" />,
+      title: 'Home',
+      description: 'Accede a tu panel principal y resumen de actividades',
+      href: '/Users',
+    },
+    {
+      icon: <User className="w-8 h-8" />,
+      title: 'Account',
+      description: 'Gestiona tu perfil y información personal',
+      href: '/Users/profile',
+    },
+    {
+      icon: <Settings className="w-8 h-8" />,
+      title: 'Settings',
+      description: 'Configura tus preferencias y opciones',
+      href: '/Users/reservations',
+    },
+  ];
 
   return (
     <motion.div
@@ -52,193 +62,69 @@ export default function UsersDashboard() {
       transition={{ staggerChildren: 0.1 }}
       className="min-h-screen"
     >
-      <motion.div variants={cardVariants} className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-foreground font-poppins mb-2 bg-gradient-text bg-clip-text text-transparent">
-          Control de Auditorio (Piso 3)
+      {/* Header */}
+      <motion.div
+        variants={cardVariants}
+        className="mb-12"
+      >
+        <h1 className="text-5xl md:text-6xl font-bold text-foreground font-poppins mb-3 bg-gradient-text bg-clip-text text-transparent">
+          ¡Bienvenido, {userName}!
         </h1>
-        <p className="text-muted-foreground">
-          Telemetría en vivo y control directo vía WebSocket → MQTT → dispositivo.
+        <p className="text-muted-foreground text-lg font-inter">
+          Aquí puedes gestionar tu cuenta y acceder a todas tus opciones
         </p>
       </motion.div>
 
+      {/* Features Grid */}
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+        variants={cardVariants}
+      >
+        {features.map((feature, index) => (
+          <Link key={feature.href} href={feature.href}>
+            <motion.div
+              whileHover={{ y: -8 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className={`group relative p-8 rounded-xl border border-primary/20 bg-linear-to-br from-primary/5 to-primary/1 backdrop-blur-md hover:border-primary/50 hover:from-primary/10 transition-all duration-500 cursor-pointer h-full`}
+            >
+              {/* Background grid effect */}
+              <div className="absolute inset-0 bg-grid-fade opacity-5" />
+              
+              <div className="relative z-10">
+                <div className={`text-primary mb-4 group-hover:scale-110 transition-transform text-glow w-fit`}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-2xl font-bold text-foreground mb-2 font-poppins">
+                  {feature.title}
+                </h3>
+                <p className="text-muted-foreground text-base leading-relaxed font-inter">
+                  {feature.description}
+                </p>
+              </div>
+            </motion.div>
+          </Link>
+        ))}
+      </motion.div>
+
+      {/* Info Section */}
       <motion.div
         variants={cardVariants}
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start"
+        className="p-8 rounded-2xl border border-primary/20 bg-linear-to-r from-primary/5 via-primary/2 to-primary/5 backdrop-blur-md"
       >
-        <div className="lg:col-span-2 p-6 rounded-xl border border-border bg-background/80 space-y-4">
-          <div className="flex items-center gap-3">
-            <Lightbulb className="w-6 h-6 text-primary" />
-            <div>
-              <div className="text-sm text-muted-foreground">Zona</div>
-              <div className="text-xl font-semibold">Auditorio (Piso 3)</div>
-              <div className="text-xs text-muted-foreground">
-                Dispositivo: {deviceId}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Stat label="Temperatura" value={telemetry ? `${telemetry.temperature.toFixed(1)} °C` : '—'} />
-            <Stat label="Humedad" value={telemetry ? `${telemetry.humidity}%` : '—'} />
-            <Stat label="Relay (luz)" value={telemetry ? (telemetry.relay ? 'ON' : 'OFF') : '—'} />
-            <Stat label="Botón" value={telemetry ? (telemetry.button ? 'ON' : 'OFF') : '—'} />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <SwitchCard
-              icon={<Lightbulb className="w-4 h-4" />}
-              label="Luces del espacio"
-              checked={!!telemetry?.relay}
-              onToggle={() => {
-                const next = telemetry?.relay ? 'OFF' : 'ON';
-                setTelemetry((prev) =>
-                  prev
-                    ? {
-                        ...prev,
-                        relay: !prev.relay,
-                      }
-                    : prev,
-                );
-                send(
-                  () =>
-                    telemetrySocket.sendRelay({
-                      deviceId,
-                      command: next,
-                    }),
-                  `Relay ${next}`,
-                );
-              }}
-            />
-            <SwitchCard
-              icon={<Fan className="w-4 h-4" />}
-              label="Ventilador"
-              checked={false} // toggle-only; estado no reportado, usamos false fijo
-              onToggle={() =>
-                send(() => telemetrySocket.sendFan({ deviceId, command: 'toggle' }), 'Fan toggle')
-              }
-            />
-            <SwitchCard
-              icon={<Sparkles className="w-4 h-4" />}
-              label="Luz ventilador"
-              checked={false} // toggle-only; estado no reportado, usamos false fijo
-              onToggle={() =>
-                send(
-                  () => telemetrySocket.sendLight({ deviceId, command: 'toggle' }),
-                  'Fan light toggle',
-                )
-              }
-            />
-            <ControlButton
-              icon={<Gauge className="w-4 h-4" />}
-              label="Subir velocidad ventilador"
-              onClick={() =>
-                send(() => telemetrySocket.sendFan({ deviceId, command: 'up' }), 'Fan up')
-              }
-            />
-            <ControlButton
-              icon={<Gauge className="w-4 h-4" />}
-              label="Bajar velocidad ventilador"
-              onClick={() =>
-                send(() => telemetrySocket.sendFan({ deviceId, command: 'down' }), 'Fan down')
-              }
-            />
-            <ControlButton
-              icon={<SunMoon className="w-4 h-4" />}
-              label="Subir intensidad luces"
-              onClick={() =>
-                send(
-                  () => telemetrySocket.sendLight({ deviceId, command: 'up' }),
-                  'Fan light up',
-                )
-              }
-            />
-            <ControlButton
-              icon={<SunMoon className="w-4 h-4" />}
-              label="Bajar intensidad luces"
-              onClick={() =>
-                send(
-                  () => telemetrySocket.sendLight({ deviceId, command: 'down' }),
-                  'Fan light down',
-                )
-              }
-            />
-          </div>
-        </div>
-
-        <div className="p-6 rounded-xl border border-border bg-background/80 space-y-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Activity className="w-4 h-4 text-primary" />
-            <span>Estado</span>
-          </div>
-          <div className="text-sm">Último comando:</div>
-          <div className="text-base font-semibold">{lastCommand}</div>
-          <div className="text-sm text-muted-foreground">
-            Telemetría: {telemetry ? 'Recibiendo' : '—'}
-          </div>
+        {/* Background grid */}
+        <div className="absolute inset-0 bg-grid-fade opacity-5" />
+        
+        <div className="relative z-10">
+          <h3 className="text-lg font-semibold text-primary mb-2 font-poppins text-glow">
+            💡 Consejo
+          </h3>
+          <p className="text-muted-foreground font-inter">
+            Utiliza el menú lateral para navegar fácilmente entre tus diferentes opciones. 
+            Puedes acceder a tu perfil, revisar tus reservas o explorar el mapa en cualquier momento.
+          </p>
         </div>
       </motion.div>
     </motion.div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="p-3 rounded-lg border border-border bg-background/70">
-      <div className="text-xs text-muted-foreground uppercase">{label}</div>
-      <div className="text-lg font-semibold">{value}</div>
-    </div>
-  );
-}
-
-function ControlButton({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex items-center gap-2 w-full p-3 rounded-lg border border-border bg-secondary/20 hover:border-primary/60 hover:bg-primary/5 transition"
-    >
-      <span className="text-primary">{icon}</span>
-      <span className="text-sm font-semibold">{label}</span>
-    </button>
-  );
-}
-
-function SwitchCard({
-  icon,
-  label,
-  checked,
-  onToggle,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  checked: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <div className="p-3 rounded-lg border border-border bg-background/70 flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2">
-        <span className="text-primary">{icon}</span>
-        <span className="text-sm font-semibold">{label}</span>
-      </div>
-      <button
-        onClick={onToggle}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-          checked ? 'bg-primary' : 'bg-secondary/40'
-        }`}
-      >
-        <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-            checked ? 'translate-x-5' : 'translate-x-1'
-          }`}
-        />
-      </button>
-    </div>
   );
 }

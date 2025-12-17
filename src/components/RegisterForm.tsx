@@ -45,15 +45,15 @@ export default function RegisterForm() {
 
   const validateStep1 = () => {
     if (!formData.fullName.trim()) {
-      setError('El nombre completo es requerido');
+      setError('Full name is required');
       return false;
     }
     if (!formData.email.trim()) {
-      setError('El email es requerido');
+      setError('Email is required');
       return false;
     }
     if (!formData.phone.trim()) {
-      setError('El teléfono es requerido');
+      setError('Phone number is required');
       return false;
     }
     setError('');
@@ -62,19 +62,19 @@ export default function RegisterForm() {
 
   const validateStep2 = () => {
     if (!isPasswordValid) {
-      setError('La contraseña no cumple con los requisitos');
+      setError('Password does not meet the requirements');
       return false;
     }
     if (!passwordsMatch) {
-      setError('Las contraseñas no coinciden');
+      setError('Passwords do not match');
       return false;
     }
     if (!formData.dateOfBirth.trim()) {
-      setError('La fecha de nacimiento es requerida');
+      setError('Date of birth is required');
       return false;
     }
     if (!agreedToTerms) {
-      setError('Debes aceptar los términos y condiciones');
+      setError('You must accept the terms and conditions');
       return false;
     }
     setError('');
@@ -97,24 +97,37 @@ export default function RegisterForm() {
     setIsLoading(true);
 
     try {
-      // Consumir el servicio de registro
+      // Determine user role based on email
+      const userRole = formData.email.toLowerCase() === 'mayerlyzapatarodriguez@gmail.com' ? 'admin' : 'user';
+      
+      // Consume registration service
       const result = await AuthService.register({
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
-        roleId: formData.role !== 'user' ? formData.role : undefined,
+        roleId: userRole !== 'user' ? userRole : undefined,
       });
 
       if (result.ok) {
-        // Registro exitoso - redirigir al login
+        // Save user data to localStorage
+        const userData = {
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          dateOfBirth: formData.dateOfBirth,
+          role: userRole,
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Successful registration - redirect to login
         router.push('/login?registered=true');
       } else {
-        setError(result.error || 'Error al registrarse. Intenta nuevamente.');
+        setError(result.error || 'Error registering. Please try again.');
       }
     } catch (err) {
-      console.error('Error durante el registro:', err);
-      setError('Error al conectar con el servidor. Intenta nuevamente.');
+      console.error('Error during registration:', err);
+      setError('Error connecting to server. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -395,12 +408,12 @@ export default function RegisterForm() {
                     {passwordsMatch ? (
                       <>
                         <Check className="w-4 h-4 text-green-500" />
-                        <span className="text-green-500">Las contraseñas coinciden</span>
+                        <span className="text-green-500">Passwords match</span>
                       </>
                     ) : (
                       <>
                         <X className="w-4 h-4 text-destructive" />
-                        <span className="text-destructive">Las contraseñas no coinciden</span>
+                        <span className="text-destructive">Passwords do not match</span>
                       </>
                     )}
                   </div>

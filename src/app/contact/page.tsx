@@ -1,6 +1,5 @@
-'use client';
+"use client";
 
-import Header from "@/components/Header";
 import Footer from "@/components/landing/Footer";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin } from "lucide-react";
@@ -14,9 +13,11 @@ export default function ContactoPage() {
     mensaje: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -52,7 +53,6 @@ export default function ContactoPage() {
 
   return (
     <>
-      <Header />
       <main className="pt-20 min-h-screen flex items-center">
         <section className="relative w-full py-12 overflow-hidden">
           {/* Background */}
@@ -85,7 +85,8 @@ export default function ContactoPage() {
                 </h2>
 
                 <p className="font-inter text-lg text-muted-foreground mb-12 font-light">
-                  ¿Tienes preguntas? Nos encantaría escucharte y ayudarte a implementar Aluna en tu organización.
+                  ¿Tienes preguntas? Nos encantaría escucharte y ayudarte a
+                  implementar Aluna en tu organización.
                 </p>
 
                 {/* Features List */}
@@ -106,11 +107,21 @@ export default function ContactoPage() {
                       className="flex items-center gap-3"
                     >
                       <div className="w-5 h-5 rounded-full bg-linear-to-br from-primary to-primary/60 flex items-center justify-center shrink-0">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       </div>
-                      <span className="text-foreground font-inter">{feature}</span>
+                      <span className="text-foreground font-inter">
+                        {feature}
+                      </span>
                     </motion.div>
                   ))}
                 </div>
@@ -123,7 +134,9 @@ export default function ContactoPage() {
                   transition={{ duration: 0.6, delay: 0.5 }}
                   className="space-y-3"
                 >
-                  <div className="text-xs font-medium text-muted-foreground mb-3">General Contact Info</div>
+                  <div className="text-xs font-medium text-muted-foreground mb-3">
+                    General Contact Info
+                  </div>
                   {contactMethods.map((method) => {
                     const Icon = method.icon;
                     return (
@@ -156,10 +169,7 @@ export default function ContactoPage() {
                 transition={{ duration: 0.7, delay: 0.2 }}
               >
                 <div className="relative p-6 rounded-3xl bg-foreground/5 backdrop-blur-xl border border-foreground/10 hover:border-primary/30 transition-all duration-500">
-                  <form
-                    onSubmit={handleSubmit}
-                    className="space-y-4"
-                  >
+                  <form onSubmit={handleSubmit} className="space-y-4">
                     {/* First Name & Last Name Row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -189,7 +199,6 @@ export default function ContactoPage() {
                         />
                       </div>
                     </div>
-
                     {/* Email */}
                     <div>
                       <label className="block text-xs uppercase tracking-wider font-medium mb-3 text-muted-foreground">
@@ -205,7 +214,6 @@ export default function ContactoPage() {
                         placeholder="tu@email.com"
                       />
                     </div>
-
                     {/* Company */}
                     <div>
                       <label className="block text-xs uppercase tracking-wider font-medium mb-3 text-muted-foreground">
@@ -218,7 +226,6 @@ export default function ContactoPage() {
                         placeholder="Tu empresa"
                       />
                     </div>
-
                     {/* Subject */}
                     <div>
                       <label className="block text-xs uppercase tracking-wider font-medium mb-3 text-muted-foreground">
@@ -238,7 +245,6 @@ export default function ContactoPage() {
                         <option value="otro">Otro</option>
                       </select>
                     </div>
-
                     {/* Message */}
                     <div>
                       <label className="block text-xs uppercase tracking-wider font-medium mb-3 text-muted-foreground">
@@ -253,7 +259,8 @@ export default function ContactoPage() {
                         className="w-full px-4 py-2 rounded-xl border border-foreground/20 bg-foreground/3 backdrop-blur-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary focus:bg-foreground/5 transition-all duration-300 resize-none text-sm"
                         placeholder="Tu mensaje..."
                       />
-                    </div>                    {/* Terms Checkbox */}
+                    </div>{" "}
+                    {/* Terms Checkbox */}
                     <div className="flex items-center gap-3">
                       <input
                         type="checkbox"
@@ -261,7 +268,10 @@ export default function ContactoPage() {
                         required
                         className="w-4 h-4 rounded border border-foreground/20 bg-foreground/3 cursor-pointer accent-primary"
                       />
-                      <label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer">
+                      <label
+                        htmlFor="terms"
+                        className="text-xs text-muted-foreground cursor-pointer"
+                      >
                         Acepto los{" "}
                         <span className="text-foreground hover:text-primary transition-colors">
                           Términos de Uso
@@ -269,11 +279,10 @@ export default function ContactoPage() {
                         y la{" "}
                         <span className="text-foreground hover:text-primary transition-colors">
                           Política de Privacidad
-                        </span>
-                        {" "}*
+                        </span>{" "}
+                        *
                       </label>
                     </div>
-
                     {/* Submit Button */}
                     <motion.button
                       type="submit"

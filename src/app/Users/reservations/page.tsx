@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Clock, Check, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { ChevronLeft, ChevronRight, Clock, Check, X, Users, Wifi, Coffee } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TimeSlot {
@@ -9,15 +10,115 @@ interface TimeSlot {
   available: boolean;
 }
 
+interface Space {
+  id: string;
+  name: string;
+  capacity: number;
+  location: string;
+  amenities: string[];
+  price: number;
+}
+
+const spaces: Space[] = [
+  {
+    id: '1',
+    name: 'Sala de Reuniones A',
+    capacity: 8,
+    location: 'Piso 3',
+    amenities: ['WiFi', 'Proyector', 'Café'],
+    price: 100,
+  },
+  {
+    id: '2',
+    name: 'Sala de Reuniones B',
+    capacity: 20,
+    location: 'Piso 5',
+    amenities: ['WiFi', 'Cafe', 'TV', 'Café'],
+    price: 300,
+  },
+  {
+    id: '3',
+    name: 'Sala de Conferencias',
+    capacity: 30,
+    location: 'Piso 4',
+    amenities: ['WiFi', 'Sistema de Audio', 'Proyector 4K'],
+    price: 150,
+  },
+  {
+    id: '4',
+    name: 'Espacio de Trabajo Colaborativo',
+    capacity: 20,
+    location: 'Piso 1',
+    amenities: ['WiFi', 'Café', 'Estaciones de Trabajo'],
+    price: 40,
+  },
+  {
+    id: '5',
+    name: 'Sala de Entrenamiento',
+    capacity: 25,
+    location: 'Piso 3',
+    amenities: ['WiFi', 'Proyector', 'Tablero', 'Café', 'Conexión HDMI'],
+    price: 120,
+  },
+];
+
 export default function ReservationsPage() {
+  const searchParams = useSearchParams();
+  const spaceId = searchParams.get('spaceId');
+  
+  // Encontrar la sala seleccionada
+  const selectedSpace = spaces.find(space => space.id === spaceId);
+  
   const [currentDate, setCurrentDate] = useState(new Date(2024, 11, 16)); // Diciembre 16, 2024
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date(2024, 11, 16));
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
   const [hoveredTime, setHoveredTime] = useState<string | null>(null);
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Generar slots de horarios
-  const timeSlots: TimeSlot[] = [
+  // Load available time slots from API
+  useEffect(() => {
+    const fetchAvailableSlots = async () => {
+      try {
+        setIsLoading(true);
+        // Use spaceId to get available dates
+        const response = await fetch(`/api/reservations/${spaceId}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Transform API data to TimeSlots
+          // Assuming API returns something like { availableSlots: [...] }
+          if (data.availableSlots && Array.isArray(data.availableSlots)) {
+            setTimeSlots(data.availableSlots);
+          } else if (Array.isArray(data)) {
+            setTimeSlots(data);
+          }
+        } else {
+          // If it fails, use default time slots
+          console.error('Error loading available time slots');
+          setTimeSlots(getDefaultTimeSlots());
+        }
+      } catch (error) {
+        console.error('Error fetching available slots:', error);
+        // Fallback to default time slots
+        setTimeSlots(getDefaultTimeSlots());
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (spaceId) {
+      fetchAvailableSlots();
+    } else {
+      // If no spaceId, use default time slots
+      setTimeSlots(getDefaultTimeSlots());
+      setIsLoading(false);
+    }
+  }, [spaceId]);
+
+  // Default time slots (fallback)
+  const getDefaultTimeSlots = (): TimeSlot[] => [
     { time: '08:00', available: true },
     { time: '09:00', available: true },
     { time: '10:00', available: false },
@@ -75,7 +176,7 @@ export default function ReservationsPage() {
   return (
     <div className="py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Título */}
+        {/* Title */}
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
             <span className="text-foreground">Consulta tu </span>
@@ -87,14 +188,14 @@ export default function ReservationsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Calendario */}
+          {/* Calendar */}
           <div className="lg:col-span-1">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="bg-linear-to-br from-primary/10 to-primary/5 backdrop-blur-md border border-primary/30 rounded-2xl p-6"
             >
-              {/* Header del calendario */}
+              {/* Calendar Header */}
               <div className="flex items-center justify-between mb-6">
                 <button
                   onClick={handlePrevMonth}
@@ -113,7 +214,7 @@ export default function ReservationsPage() {
                 </button>
               </div>
 
-              {/* Días de la semana */}
+              {/* Days of the week */}
               <div className="grid grid-cols-7 gap-2 mb-4">
                 {daysOfWeek.map((day) => (
                   <div
@@ -196,7 +297,12 @@ export default function ReservationsPage() {
                     })}
                   </p>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-32">
+                      <div className="text-slate-400">Loading available time slots...</div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <AnimatePresence>
                       {timeSlots.map((slot, index) => (
                         <motion.button
@@ -234,26 +340,83 @@ export default function ReservationsPage() {
                         </motion.button>
                       ))}
                     </AnimatePresence>
-                  </div>
+                    </div>
+                  )}
 
                   {/* Resumen de la reserva */}
                   {selectedTime && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-8 p-4 bg-primary/10 border border-primary/50 rounded-lg"
+                      className="mt-8 p-6 bg-linear-to-br from-primary/10 to-primary/5 border border-primary/50 rounded-xl space-y-4"
                     >
-                      <h3 className="text-foreground font-semibold mb-2">Resumen:</h3>
-                      <p className="text-slate-400 text-sm">
-                        Fecha: <span className="text-primary font-semibold">
-                          {selectedDate.toLocaleDateString('es-ES')}
-                        </span>
-                      </p>
-                      <p className="text-slate-400 text-sm">
-                        Hora: <span className="text-primary font-semibold">{selectedTime}</span>
-                      </p>
-                      <button className="mt-4 w-full bg-primary text-black py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-                        Confirmar Reserva
+                      <h3 className="text-foreground font-bold text-lg mb-4">Reservation Summary:</h3>
+                      
+                      {/* Room Details */}
+                      {selectedSpace && (
+                        <div className="space-y-3 pb-4 border-b border-primary/30">
+                          <div>
+                            <p className="text-slate-500 text-sm">Room</p>
+                            <p className="text-foreground font-semibold">{selectedSpace.name}</p>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-slate-500 text-sm">Location</p>
+                              <p className="text-foreground font-semibold">{selectedSpace.location}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-500 text-sm">Capacity</p>
+                              <p className="text-foreground font-semibold">{selectedSpace.capacity} people</p>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <p className="text-slate-500 text-sm mb-2">Amenities</p>
+                            <div className="flex flex-wrap gap-2">
+                              {selectedSpace.amenities.map((amenity) => (
+                                <span
+                                  key={amenity}
+                                  className="bg-primary/20 text-primary px-2 py-1 rounded text-xs font-semibold"
+                                >
+                                  {amenity}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Date and Time Details */}
+                      <div className="space-y-3 pb-4 border-b border-primary/30">
+                        <div>
+                          <p className="text-slate-500 text-sm">Date</p>
+                          <p className="text-foreground font-semibold">
+                            {selectedDate.toLocaleDateString('es-ES', { 
+                              weekday: 'long', 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-slate-500 text-sm">Time</p>
+                          <p className="text-foreground font-semibold">{selectedTime}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Price */}
+                      {selectedSpace && (
+                        <div className="pb-4 border-b border-primary/30">
+                          <p className="text-slate-500 text-sm">Price per hour</p>
+                          <p className="text-primary font-bold text-lg">${selectedSpace.price}/hour</p>
+                        </div>
+                      )}
+                      
+                      {/* Confirm Button */}
+                      <button className="w-full bg-orange-500/40 text-orange-300 hover:bg-orange-500/50 py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-orange-500/30 border border-orange-500/70 mt-6">
+                        Confirm Reservation
                       </button>
                     </motion.div>
                   )}
@@ -261,7 +424,7 @@ export default function ReservationsPage() {
               ) : (
                 <div className="flex items-center justify-center h-64">
                   <p className="text-slate-400 text-center">
-                    Selecciona una fecha en el calendario para ver los horarios disponibles
+                    Select a date in the calendar to see available time slots
                   </p>
                 </div>
               )}

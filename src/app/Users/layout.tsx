@@ -14,7 +14,7 @@ export default function UsersLayout({
       {/* Background Gradient Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Main gradient background */}
-        <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-slate-950 to-slate-950" />
+        <div className="absolute inset-0 bg-background" />
         
         {/* Grid pattern */}
         <div className="absolute inset-0 bg-grid-fade opacity-10" />

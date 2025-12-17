@@ -6,8 +6,8 @@ import Header from './Header';
 export default function ClientHeader() {
   const pathname = usePathname();
 
-  // No renderizar el Header si estamos en /Users
-  if (pathname.startsWith('/Users')) {
+  // Do not render the Header if we are in /Users or /admin
+  if (pathname.startsWith('/Users') || pathname.startsWith('/admin')) {
     return null;
   }
 

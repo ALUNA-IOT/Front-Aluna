@@ -65,7 +65,7 @@ export default function Floor5Svg({ zones, selectedId, onSelect }: Props) {
           onSelect(id);
         }}
       >
-        {/* SVG REAL PEGADO AQUÍ 👇 */}
+        {/* SVG */}
 
         <defs>
           <clipPath id="clippath">
@@ -213,7 +213,7 @@ export default function Floor5Svg({ zones, selectedId, onSelect }: Props) {
             </g>
           </g>
           <g id="Classrooms">
-            <g id="Western">
+            <g id="Classrooms_Western">
               <g id="shadow-5" data-name="shadow">
                 <image
                   width="485"
@@ -247,7 +247,7 @@ export default function Floor5Svg({ zones, selectedId, onSelect }: Props) {
                 strokeMiterlimit="10"
               />
             </g>
-            <g id="East">
+            <g id="Classrooms_East">
               <g id="shadow-6" data-name="shadow">
                 <image
                   width="484"
@@ -995,9 +995,7 @@ export default function Floor5Svg({ zones, selectedId, onSelect }: Props) {
           </style>
         ))}
 
-        {/* =======================================================
-    3) Labels visibles (coordenadas fijas – ESTABLE)
-   ======================================================= */}
+        {/*Labels visibles (coordenadas fijas – ESTABLE) */}
         <g id="ZoneLabels" pointerEvents="none">
           {zones.map((z) => {
             const p = FLOOR5_LABEL_POS[z.id];
@@ -1012,7 +1010,7 @@ export default function Floor5Svg({ zones, selectedId, onSelect }: Props) {
                 dominantBaseline="middle"
                 fontSize={20}
                 fontWeight={700}
-                opacity={0.3}
+                opacity={0.95}
                 fill={
                   z.status === "emergency"
                     ? "rgba(255,190,120,0.95)"
@@ -1021,6 +1019,66 @@ export default function Floor5Svg({ zones, selectedId, onSelect }: Props) {
               >
                 {ZONE_LABELS[z.id]}
               </text>
+            );
+          })}
+        </g>
+        {/* =======================================================
+   4) Resumen de estado por zona (temperatura / humedad)
+   ======================================================= */}
+        <g id="ZoneSummary" pointerEvents="none">
+          {zones.map((z) => {
+            const p = FLOOR5_LABEL_POS[z.id];
+            if (!p) return null;
+
+            // Solo mostramos resumen en zonas importantes
+            if (!CLICKABLE_ZONES.has(z.id)) return null;
+
+            return (
+              <g
+                key={z.id}
+                transform={`translate(${p.x}, ${p.y + 26})`}
+                opacity={0.9}
+              >
+                {/* Temperatura */}
+                {typeof z.temperature === "number" && (
+                  <text
+                    y={0}
+                    textAnchor={p.align ?? "middle"}
+                    fontSize={13}
+                    fill="rgba(180,230,255,0.9)"
+                  >
+                    🌡 {z.temperature}°C
+                  </text>
+                )}
+
+                {/* Humedad */}
+                {typeof z.humidity === "number" && (
+                  <text
+                    y={16}
+                    textAnchor={p.align ?? "middle"}
+                    fontSize={12}
+                    fill="rgba(160,210,255,0.8)"
+                  >
+                    💧 {z.humidity}%
+                  </text>
+                )}
+
+                {/* Estado */}
+                <text
+                  y={32}
+                  textAnchor={p.align ?? "middle"}
+                  fontSize={11}
+                  fill={
+                    z.status === "warning"
+                      ? "rgba(255,200,120,0.9)"
+                      : z.status === "on"
+                      ? "rgba(120,255,220,0.9)"
+                      : "rgba(160,160,160,0.7)"
+                  }
+                >
+                  {z.status.toUpperCase()}
+                </text>
+              </g>
             );
           })}
         </g>

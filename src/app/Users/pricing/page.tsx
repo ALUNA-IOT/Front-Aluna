@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { MapPin, Users, Wifi, Tv, Coffee } from 'lucide-react';
 
 interface Space {
@@ -19,25 +20,25 @@ const spaces: Space[] = [
     id: '1',
     name: 'Sala de Reuniones A',
     capacity: 8,
-    location: 'Piso 2',
+    location: 'Piso 3',
     amenities: ['WiFi', 'Proyector', 'Café'],
     available: true,
-    price: 50,
+    price: 100,
   },
   {
     id: '2',
     name: 'Sala de Reuniones B',
-    capacity: 12,
-    location: 'Piso 2',
-    amenities: ['WiFi', 'Tablero', 'Proyector', 'Café'],
+    capacity: 20,
+    location: 'Piso 5',
+    amenities: ['WiFi', 'Cafe', 'TV', 'Café'],
     available: true,
-    price: 80,
+    price: 300,
   },
   {
     id: '3',
     name: 'Sala de Conferencias',
     capacity: 30,
-    location: 'Piso 3',
+    location: 'Piso 4',
     amenities: ['WiFi', 'Sistema de Audio', 'Proyector 4K', 'Café', 'Refrescos'],
     available: false,
     price: 150,
@@ -71,10 +72,17 @@ const amenityIcons: Record<string, React.ReactNode> = {
 };
 
 export default function PricingPage() {
+  const router = useRouter();
+
+  const handleReserva = (spaceId: string, spaceName: string) => {
+    // Redirect to reservations page with space parameters
+    router.push(`/Users/reservations?spaceId=${spaceId}&spaceName=${encodeURIComponent(spaceName)}`);
+  };
+
   return (
     <div className="py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Título */}
+        {/* Title */}
         <div className="mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">
             <span className="text-foreground">Nuestros </span>
@@ -85,7 +93,7 @@ export default function PricingPage() {
           </p>
         </div>
 
-        {/* Grid de Espacios */}
+        {/* Spaces Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {spaces.map((space, index) => (
             <motion.div
@@ -119,9 +127,9 @@ export default function PricingPage() {
                 </div>
               </div>
 
-              {/* Contenido */}
+              {/* Content */}
               <div className="p-6 space-y-4">
-                {/* Capacidad */}
+                {/* Capacity */}
                 <div className="flex items-center gap-3">
                   <div className="bg-primary/20 p-2 rounded-lg">
                     <Users size={18} className="text-primary" />
@@ -132,7 +140,7 @@ export default function PricingPage() {
                   </div>
                 </div>
 
-                {/* Amenidades */}
+                {/* Amenities */}
                 <div>
                   <p className="text-sm text-slate-500 mb-3">Amenidades</p>
                   <div className="flex flex-wrap gap-2">
@@ -147,25 +155,26 @@ export default function PricingPage() {
                     ))}
                     {space.amenities.length > 3 && (
                       <div className="bg-slate-800 text-slate-400 px-3 py-1 rounded-lg text-xs font-semibold">
-                        +{space.amenities.length - 3} más
+                        +{space.amenities.length - 3} more
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Precio */}
+                {/* Price */}
                 {space.price && (
                   <div className="pt-4 border-t border-primary/20">
                     <p className="text-slate-400">
-                      Desde <span className="text-primary font-bold text-lg">${space.price}</span>/hora
+                      From <span className="text-primary font-bold text-lg">${space.price}</span>/hour
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* Acciones */}
+              {/* Actions */}
               <div className="p-6 border-t border-primary/20">
                 <button
+                  onClick={() => handleReserva(space.id, space.name)}
                   disabled={!space.available}
                   className={`w-full py-3 rounded-lg font-semibold transition-colors ${
                     space.available

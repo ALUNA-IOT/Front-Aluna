@@ -47,7 +47,7 @@ const Header = () => {
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400 }}
             onClick={() => {
-              // Limpiar sessionStorage para mostrar el splash screen
+              // Clear sessionStorage to show the splash screen
               sessionStorage.removeItem('hasShownSplashThisSession');
             }}
           >
@@ -195,7 +195,7 @@ const Header = () => {
               animate={hoveredTooltip === "login" ? { opacity: 1, x: 0 } : { opacity: 0, x: 10 }}
               transition={{ duration: 0.2 }}
             >
-              Iniciar Sesión
+              Sign In
             </motion.div>
           </motion.div>
           
@@ -221,7 +221,7 @@ const Header = () => {
               animate={hoveredTooltip === "close" ? { opacity: 1, x: 0 } : { opacity: 0, x: 10 }}
               transition={{ duration: 0.2 }}
             >
-              Cerrar
+              Close
             </motion.div>
           </motion.div>
         </motion.nav>

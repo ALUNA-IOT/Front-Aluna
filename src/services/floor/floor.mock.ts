@@ -7,7 +7,6 @@ export const FLOOR5_MOCK: FloorState = {
   id: "floor-5",
   label: "Floor 5",
   zones: [
-    // MVP (Aula oriental): NO quemamos aquí (queda para endpoint)
     Z({
       id: "Classrooms_East",
       label: "Aula Oriental (MVP)",

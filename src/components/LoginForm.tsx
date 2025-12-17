@@ -17,8 +17,63 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Bypass login: ir directo al dashboard de usuarios
-    router.push('/Users');
+    setError('');
+    setIsLoading(true);
+
+    try {
+      // Consume authentication service
+      const result = await AuthService.login({ email, password });
+      
+      if (result.ok) {
+        // Determine user role based on email
+        const userRole = email.toLowerCase() === 'mayerlyzapatarodriguez@gmail.com' ? 'admin' : 'user';
+        
+        // Save basic user data to localStorage based on email
+        const userData = {
+          fullName: email.split('@')[0], // Use the part before @ as temporary name
+          email: email,
+          phone: '',
+          role: userRole,
+          dateOfBirth: '',
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Try to get additional session data
+        const session = await AuthService.getSession();
+        if (session?.user) {
+          // If session has more data, update
+          const updatedUserData = {
+            fullName: session.user.name || userData.fullName,
+            email: session.user.email || email,
+            phone: session.user.phone || '',
+            role: userRole, // Keep the role based on email check
+            dateOfBirth: session.user.dateOfBirth || '',
+          };
+          localStorage.setItem('user', JSON.stringify(updatedUserData));
+          
+          // Redirect based on user role
+          if (updatedUserData.role === 'admin') {
+            router.push('/admin');
+          } else {
+            router.push('/Users');
+          }
+        } else {
+          // Redirect based on user role
+          if (userRole === 'admin') {
+            router.push('/admin');
+          } else {
+            router.push('/Users');
+          }
+        }
+      } else {
+        setError(result.error || 'Error logging in. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error during login:', err);
+      setError('Error connecting to server. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const containerVariants = {

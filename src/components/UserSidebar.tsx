@@ -92,7 +92,7 @@ export default function UserSidebar() {
 
       {/* Sidebar */}
       <motion.aside
-        className="fixed left-0 top-0 w-32 h-screen bg-linear-to-b from-slate-950 via-slate-900 to-slate-950 shadow-2xl shadow-primary/20 z-40 overflow-visible flex flex-col items-center pt-6 lg:relative lg:z-auto lg:shadow-lg lg:shadow-primary/10 lg:translate-x-0 border-r border-primary/20"
+        className="fixed left-0 top-0 w-32 h-screen bg-background shadow-2xl shadow-primary/20 z-40 overflow-visible flex flex-col items-center pt-6 lg:relative lg:z-auto lg:shadow-lg lg:shadow-primary/10 lg:translate-x-0 border-r border-primary/20"
         initial={false}
         animate={{
           x: isOpen ? 0 : -128,
@@ -105,13 +105,11 @@ export default function UserSidebar() {
           whileHover={{ scale: 1.1 }}
           transition={{ type: 'spring', stiffness: 400 }}
         >
-          <a href="/" onClick={() => sessionStorage.removeItem('hasShownSplashThisSession')}>
-            <img 
-              src="/img/logo.png"
-              alt="ALUNA" 
-              className="h-12 w-auto drop-shadow-[0_0_10px_hsl(195_100%_50%/0.5)]"
-            />
-          </a>
+          <img 
+            src="/img/logo.png"
+            alt="ALUNA" 
+            className="h-12 w-auto drop-shadow-[0_0_10px_hsl(195_100%_50%/0.5)]"
+          />
         </motion.div>
 
         <nav className="flex flex-col items-center gap-6 w-full px-6 pb-8 overflow-visible">
