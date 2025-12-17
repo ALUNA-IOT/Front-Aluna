@@ -8,7 +8,7 @@ export default function LoginPage() {
     <div className="relative min-h-screen flex flex-col lg:flex-row overflow-hidden">
       {/* Left Panel - Welcome Section */}
       <motion.div
-        className="w-full lg:w-1/2 bg-linear-to-br from-primary/20 via-primary/10 to-transparent flex flex-col items-center justify-center p-12 relative overflow-hidden"
+        className="hidden lg:flex lg:w-1/2 lg:bg-linear-to-br lg:from-primary/20 lg:via-primary/10 lg:to-transparent lg:flex-col lg:items-center lg:justify-center p-12 relative overflow-hidden"
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
@@ -52,7 +52,7 @@ export default function LoginPage() {
 
       {/* Right Panel - Login Form */}
       <motion.div
-        className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 bg-background relative overflow-hidden"
+        className="w-full lg:w-1/2 flex items-center justify-center pt-32 md:p-12 pb-12 bg-background relative overflow-hidden"
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}

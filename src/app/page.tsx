@@ -1,6 +1,7 @@
 'use client';
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import HeroSection from "@/components/landing/HeroSection";
 import AboutSection from "@/components/landing/AboutSection";
@@ -179,7 +180,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
 
             {/* Tagline */}
             <motion.p
-              className="mt-6 font-inter text-lg tracking-[0.3em] text-muted-foreground uppercase text-white"
+              className="mt-6 font-inter text-sm md:text-lg tracking-[0.15em] md:tracking-[0.3em] text-muted-foreground uppercase text-white px-4"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: phase === "logo" ? 1 : 0, y: phase === "logo" ? 0 : 10 }}
               transition={{ duration: 0.5, delay: 1 }}
@@ -202,10 +203,20 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Verificar si hay parámetro splash en la URL
+    const splashParam = searchParams.get('splash');
+    
+    if (splashParam === 'true') {
+      // Si viene del logo click, mostrar splash
+      setShowSplash(true);
+      setIsInitialLoad(false);
+      return;
+    }
+
     // En la carga inicial, verificar si es la primera vez usando sessionStorage
-    // sessionStorage se limpia cuando cierras la pestaña
     const hasShownSplashThisSession = sessionStorage.getItem('hasShownSplashThisSession');
     
     if (!hasShownSplashThisSession) {
@@ -218,7 +229,15 @@ export default function Home() {
     }
     
     setIsInitialLoad(false);
-  }, []);
+
+    // Listener para evento personalizado que se dispara desde otros componentes
+    const handleShowSplash = () => {
+      setShowSplash(true);
+    };
+
+    window.addEventListener('showSplashScreen', handleShowSplash);
+    return () => window.removeEventListener('showSplashScreen', handleShowSplash);
+  }, [searchParams]);
 
   const handleSplashComplete = () => {
     setShowSplash(false);

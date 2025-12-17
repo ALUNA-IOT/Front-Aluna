@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/UI/Button';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { AuthService } from '@/services/AuthService';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -20,15 +21,42 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      // Simular llamada a API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Login attempt:', { email, password });
+      // Consumir el servicio de autenticación
+      const result = await AuthService.login({ email, password });
       
-      // Aquí iría tu lógica de autenticación
-      // Si es exitosa, redirigir a Users dashboard
-      router.push('/Users');
+      if (result.ok) {
+        // Guardar datos básicos del usuario en localStorage basándose en el email
+        const userData = {
+          fullName: email.split('@')[0], // Usar la parte antes del @ como nombre temporal
+          email: email,
+          phone: '',
+          role: 'user',
+          dateOfBirth: '',
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Intentar obtener datos adicionales de la sesión
+        const session = await AuthService.getSession();
+        if (session?.user) {
+          // Si la sesión tiene más datos, actualizar
+          const updatedUserData = {
+            fullName: session.user.name || userData.fullName,
+            email: session.user.email || email,
+            phone: session.user.phone || '',
+            role: session.user.role || 'user',
+            dateOfBirth: session.user.dateOfBirth || '',
+          };
+          localStorage.setItem('user', JSON.stringify(updatedUserData));
+        }
+        
+        // Redirigir al dashboard de usuarios
+        router.push('/Users');
+      } else {
+        setError(result.error || 'Error al iniciar sesión. Intenta nuevamente.');
+      }
     } catch (err) {
-      setError('Error al iniciar sesión. Intenta nuevamente.');
+      console.error('Error durante el login:', err);
+      setError('Error al conectar con el servidor. Intenta nuevamente.');
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +86,7 @@ export default function LoginForm() {
 
   return (
     <motion.div
-      className="w-full max-w-md"
+      className="w-full max-w-md px-4 md:px-0"
       variants={containerVariants}
       initial="hidden"
       animate="visible"

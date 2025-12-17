@@ -2,9 +2,33 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { Home, User, Settings } from 'lucide-react';
 
 export default function UsersDashboard() {
+  const [userName, setUserName] = useState<string>('Usuario');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // Marcar que estamos en el cliente
+    setIsClient(true);
+    
+    // Obtener el nombre del usuario del localStorage
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        const name = userData.fullName || userData.name || 'Usuario';
+        setUserName(name);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        setUserName('Usuario');
+      }
+    } else {
+      setUserName('Usuario');
+    }
+  }, []);
+
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
@@ -44,7 +68,7 @@ export default function UsersDashboard() {
         className="mb-12"
       >
         <h1 className="text-5xl md:text-6xl font-bold text-foreground font-poppins mb-3 bg-gradient-text bg-clip-text text-transparent">
-          Bienvenido
+          ¡Bienvenido, {userName}!
         </h1>
         <p className="text-muted-foreground text-lg font-inter">
           Aquí puedes gestionar tu cuenta y acceder a todas tus opciones

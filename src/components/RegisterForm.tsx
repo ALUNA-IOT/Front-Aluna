@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/UI/Button';
 import { Mail, Lock, User, Eye, EyeOff, Check, X, Phone, Calendar } from 'lucide-react';
 import DatePickerInput from '@/components/DatePickerInput';
+import { AuthService } from '@/services/AuthService';
 
 export default function RegisterForm() {
   const [step, setStep] = useState(1);
@@ -23,6 +25,7 @@ export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const router = useRouter();
 
   // Validación de contraseña
   const passwordValidation = {
@@ -94,18 +97,34 @@ export default function RegisterForm() {
     setIsLoading(true);
 
     try {
-      // Simular llamada a API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Registration attempt:', {
+      // Consumir el servicio de registro
+      const result = await AuthService.register({
         fullName: formData.fullName,
         email: formData.email,
+        password: formData.password,
         phone: formData.phone,
-        dateOfBirth: formData.dateOfBirth,
-        role: formData.role,
+        roleId: formData.role !== 'user' ? formData.role : undefined,
       });
-      // Aquí iría tu lógica de registro
+
+      if (result.ok) {
+        // Guardar los datos del usuario en localStorage
+        const userData = {
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          dateOfBirth: formData.dateOfBirth,
+          role: formData.role,
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Registro exitoso - redirigir al login
+        router.push('/login?registered=true');
+      } else {
+        setError(result.error || 'Error al registrarse. Intenta nuevamente.');
+      }
     } catch (err) {
-      setError('Error al registrarse. Intenta nuevamente.');
+      console.error('Error durante el registro:', err);
+      setError('Error al conectar con el servidor. Intenta nuevamente.');
     } finally {
       setIsLoading(false);
     }

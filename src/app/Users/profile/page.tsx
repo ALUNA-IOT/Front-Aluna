@@ -1,15 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, Building, Edit, Shield, Bell } from 'lucide-react';
+import { User, Mail, Phone, Building, Edit, Shield, Bell, Calendar } from 'lucide-react';
+import { AuthService } from '@/services/AuthService';
 
 interface UserProfile {
+  fullName: string;
   name: string;
   role: string;
   email: string;
   phone: string;
-  company: string;
+  dateOfBirth: string;
+  company?: string;
   avatar?: string;
 }
 
@@ -21,12 +24,15 @@ interface NotificationSettings {
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile>({
-    name: 'Carlos Mendoza',
-    role: 'Administrador IoT',
-    email: 'carlos.mendoza@empresa.com',
-    phone: '+34 612 345 678',
-    company: 'TechCorp Solutions',
+    fullName: 'Usuario',
+    name: 'Usuario',
+    role: 'Usuario',
+    email: 'usuario@email.com',
+    phone: '+57 312345678',
+    dateOfBirth: '',
+    company: 'Empresa',
   });
 
   const [notifications, setNotifications] = useState<NotificationSettings>({
@@ -36,6 +42,66 @@ export default function ProfilePage() {
   });
 
   const [formData, setFormData] = useState(profile);
+
+  // Obtener datos de la sesión al cargar
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        // Primero intentar obtener del localStorage
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          setProfile((prev) => ({
+            ...prev,
+            fullName: userData.fullName || userData.name || prev.fullName,
+            name: userData.fullName || userData.name || prev.name,
+            email: userData.email || prev.email,
+            phone: userData.phone || prev.phone,
+            role: userData.role || prev.role,
+            dateOfBirth: userData.dateOfBirth || prev.dateOfBirth,
+          }));
+          setFormData((prev) => ({
+            ...prev,
+            fullName: userData.fullName || userData.name || prev.fullName,
+            name: userData.fullName || userData.name || prev.name,
+            email: userData.email || prev.email,
+            phone: userData.phone || prev.phone,
+            role: userData.role || prev.role,
+            dateOfBirth: userData.dateOfBirth || prev.dateOfBirth,
+          }));
+        } else {
+          // Si no hay en localStorage, intentar obtener de la sesión
+          const session = await AuthService.getSession();
+          if (session?.user) {
+            setProfile((prev) => ({
+              ...prev,
+              fullName: session.user.name || prev.fullName,
+              name: session.user.name || prev.name,
+              email: session.user.email || prev.email,
+              role: session.user.role || prev.role,
+              phone: session.user.phone || prev.phone,
+              dateOfBirth: session.user.dateOfBirth || prev.dateOfBirth,
+            }));
+            setFormData((prev) => ({
+              ...prev,
+              fullName: session.user.name || prev.fullName,
+              name: session.user.name || prev.name,
+              email: session.user.email || prev.email,
+              role: session.user.role || prev.role,
+              phone: session.user.phone || prev.phone,
+              dateOfBirth: session.user.dateOfBirth || prev.dateOfBirth,
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error al obtener la sesión:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSession();
+  }, []);
 
   const handleEditClick = () => {
     setIsEditing(!isEditing);
@@ -47,6 +113,16 @@ export default function ProfilePage() {
   const handleSave = () => {
     setProfile(formData);
     setIsEditing(false);
+    
+    // Guardar los cambios en localStorage
+    const userData = {
+      fullName: formData.fullName || formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      role: formData.role,
+      dateOfBirth: formData.dateOfBirth,
+    };
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +141,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 py-8">
+    <div className="py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Título */}
         <div className="text-center mb-12">
@@ -94,7 +170,7 @@ export default function ProfilePage() {
               </button>
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-foreground mb-2">{profile.name}</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-2">{profile.fullName || profile.name}</h2>
           <p className="text-slate-400 text-lg mb-2">{profile.role}</p>
           <div className="flex items-center justify-center gap-2 text-primary">
             <Shield size={18} />
@@ -133,8 +209,8 @@ export default function ProfilePage() {
                   </label>
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
+                    name="fullName"
+                    value={formData.fullName}
                     onChange={handleInputChange}
                     className="w-full bg-slate-800/50 border border-primary/30 text-foreground px-4 py-3 rounded-lg focus:border-primary focus:outline-none"
                   />
@@ -165,6 +241,21 @@ export default function ProfilePage() {
                     type="tel"
                     name="phone"
                     value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-800/50 border border-primary/30 text-foreground px-4 py-3 rounded-lg focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                {/* Fecha de Nacimiento */}
+                <div>
+                  <label className="flex items-center gap-2 text-slate-400 text-sm mb-3">
+                    <Calendar size={16} />
+                    FECHA DE NACIMIENTO
+                  </label>
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
                     onChange={handleInputChange}
                     className="w-full bg-slate-800/50 border border-primary/30 text-foreground px-4 py-3 rounded-lg focus:border-primary focus:outline-none"
                   />
@@ -203,7 +294,7 @@ export default function ProfilePage() {
                   <User size={16} />
                   NOMBRE COMPLETO
                 </p>
-                <p className="text-foreground text-lg font-semibold">{profile.name}</p>
+                <p className="text-foreground text-lg font-semibold">{profile.fullName || profile.name}</p>
               </div>
 
               {/* Email */}
@@ -224,13 +315,13 @@ export default function ProfilePage() {
                 <p className="text-foreground text-lg font-semibold">{profile.phone}</p>
               </div>
 
-              {/* Empresa */}
+              {/* Fecha de Nacimiento */}
               <div>
                 <p className="flex items-center gap-2 text-slate-400 text-sm mb-3">
-                  <Building size={16} />
-                  EMPRESA
+                  <Calendar size={16} />
+                  FECHA DE NACIMIENTO
                 </p>
-                <p className="text-foreground text-lg font-semibold">{profile.company}</p>
+                <p className="text-foreground text-lg font-semibold">{profile.dateOfBirth || 'No especificada'}</p>
               </div>
             </div>
           )}

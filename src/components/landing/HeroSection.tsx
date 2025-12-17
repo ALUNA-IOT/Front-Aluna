@@ -109,7 +109,7 @@ const HeroSection = () => {
 
           {/* Stats */}
           <motion.div
-            className="grid grid-cols-3 gap-8 mt-20 pt-10 border-t border-border/50"
+            className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-12 md:mt-20 pt-8 md:pt-10 border-t border-border/50"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
@@ -119,16 +119,16 @@ const HeroSection = () => {
               { value: "99%", label: "Uptime Garantizado" },
               { value: "<100ms", label: "Latencia Promedio" },
             ].map((stat, index) => (
-              <div key={index} className="text-center">
+              <div key={index} className={`text-center ${index === 2 ? 'col-span-2 md:col-span-1 md:text-left lg:text-center' : ''}`}>
                 <motion.div
-                  className="font-josefin text-3xl md:text-4xl font-light gradient-text tracking-wide"
+                  className="font-josefin text-2xl md:text-3xl lg:text-4xl font-light gradient-text tracking-wide"
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
                 >
                   {stat.value}
                 </motion.div>
-                <p className="font-inter text-sm text-muted-foreground mt-2 uppercase tracking-wider">
+                <p className="font-inter text-xs md:text-sm text-muted-foreground mt-1 md:mt-2 uppercase tracking-wider">
                   {stat.label}
                 </p>
               </div>
